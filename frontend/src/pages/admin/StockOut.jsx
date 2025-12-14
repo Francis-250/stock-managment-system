@@ -56,8 +56,6 @@ export default function Stockout() {
     setCurrentPage(1);
   }, [searchTerm, itemsPerPage]);
 
-  if (loading) return <div>Loading...</div>;
-
   return (
     <div className="flex">
       <Sidebar
@@ -91,16 +89,29 @@ export default function Stockout() {
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
           />
-          <StockOutTable headers={stockOutHeaders} data={paginatedStockOuts} />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            startIndex={startIndex}
-            endIndex={endIndex}
-            totalItems={filteredStockOuts.length}
-            isMobile={false}
-          />
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-gray-600 dark:text-gray-400">
+                Loading stock out...
+              </div>
+            </div>
+          ) : (
+            <>
+              <StockOutTable
+                headers={stockOutHeaders}
+                data={paginatedStockOuts}
+              />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                startIndex={startIndex}
+                endIndex={endIndex}
+                totalItems={filteredStockOuts.length}
+                isMobile={false}
+              />
+            </>
+          )}
         </div>
         {form && <StockOutForm form={form} setForm={setForm} />}
       </main>

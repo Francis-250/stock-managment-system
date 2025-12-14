@@ -54,8 +54,6 @@ export default function Report() {
     setCurrentPage(1);
   }, [searchTerm, itemsPerPage]);
 
-  if (loading) return <div>Loading...</div>;
-
   return (
     <div className="flex">
       <Sidebar
@@ -89,16 +87,26 @@ export default function Report() {
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
           />
-          <ReportTable headers={reportHeaders} data={paginatedReports} />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            startIndex={startIndex}
-            endIndex={endIndex}
-            totalItems={filteredReports.length}
-            isMobile={false}
-          />
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-gray-600 dark:text-gray-400">
+                Loading reports...
+              </div>
+            </div>
+          ) : (
+            <>
+              <ReportTable headers={reportHeaders} data={paginatedReports} />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                startIndex={startIndex}
+                endIndex={endIndex}
+                totalItems={filteredReports.length}
+                isMobile={false}
+              />
+            </>
+          )}
         </div>
       </main>
     </div>

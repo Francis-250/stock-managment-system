@@ -53,8 +53,6 @@ export default function Category() {
     setCurrentPage(1);
   }, [searchTerm, itemsPerPage]);
 
-  if (loading) return <div>Loading...</div>;
-
   return (
     <div className="flex">
       <Sidebar
@@ -88,16 +86,29 @@ export default function Category() {
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
           />
-          <CategoryTable headers={categoryHeaders} data={paginatedCategories} />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            startIndex={startIndex}
-            endIndex={endIndex}
-            totalItems={filteredCategories.length}
-            isMobile={false}
-          />
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-gray-600 dark:text-gray-400">
+                Loading categories...
+              </div>
+            </div>
+          ) : (
+            <>
+              <CategoryTable
+                headers={categoryHeaders}
+                data={paginatedCategories}
+              />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                startIndex={startIndex}
+                endIndex={endIndex}
+                totalItems={filteredCategories.length}
+                isMobile={false}
+              />
+            </>
+          )}
         </div>
         {form && <CategoryForm setForm={setForm} form={form} />}
       </main>

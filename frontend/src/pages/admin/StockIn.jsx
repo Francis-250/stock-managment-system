@@ -54,8 +54,6 @@ export default function StockIn() {
     setCurrentPage(1);
   }, [searchTerm, itemsPerPage]);
 
-  if (loading) return <div>Loading...</div>;
-
   return (
     <div className="flex">
       <Sidebar
@@ -89,16 +87,26 @@ export default function StockIn() {
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
           />
-          <StockInTable headers={stockInHeaders} data={paginatedStockIns} />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            startIndex={startIndex}
-            endIndex={endIndex}
-            totalItems={filteredStockIns.length}
-            isMobile={false}
-          />
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-gray-600 dark:text-gray-400">
+                Loading stock in...
+              </div>
+            </div>
+          ) : (
+            <>
+              <StockInTable headers={stockInHeaders} data={paginatedStockIns} />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                startIndex={startIndex}
+                endIndex={endIndex}
+                totalItems={filteredStockIns.length}
+                isMobile={false}
+              />
+            </>
+          )}
         </div>
         {form && <StockInForm form={form} setForm={setForm} />}
       </main>

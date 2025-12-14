@@ -59,8 +59,6 @@ export default function Product() {
     setCurrentPage(1);
   }, [searchTerm, itemsPerPage]);
 
-  if (loading) return <div>Loading...</div>;
-
   return (
     <div className="flex">
       <Sidebar
@@ -94,20 +92,30 @@ export default function Product() {
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
           />
-          <ProductTable
-            headers={productHeaders}
-            data={paginatedProducts}
-            categories={categories}
-          />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            startIndex={startIndex}
-            endIndex={endIndex}
-            totalItems={filteredProducts.length}
-            isMobile={false}
-          />
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-gray-600 dark:text-gray-400">
+                Loading products...
+              </div>
+            </div>
+          ) : (
+            <>
+              <ProductTable
+                headers={productHeaders}
+                data={paginatedProducts}
+                categories={categories}
+              />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                startIndex={startIndex}
+                endIndex={endIndex}
+                totalItems={filteredProducts.length}
+                isMobile={false}
+              />
+            </>
+          )}
         </div>
         {form && <ProductForm form={form} setForm={setForm} />}
       </main>
