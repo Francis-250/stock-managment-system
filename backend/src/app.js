@@ -12,7 +12,7 @@ import stockOutRoutes from "./routes/stockOut.route.js";
 import stockMovementRoutes from "./routes/stockMovement.route.js";
 import statsRoutes from "./routes/stats.route.js";
 import reportRoutes from "./routes/report.route.js";
-
+ 
 dotenv.config();
 
 const app = express();
