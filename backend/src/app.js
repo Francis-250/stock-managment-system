@@ -17,13 +17,32 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8000;
-const allowedOrigins = ["http://localhost:5173"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://stock-managment-system-1.onrender.com",
+];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log(`❌ Blocked by CORS: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Accept",
+      "Cookie",
+      "Set-Cookie",
+    ],
   })
 );
 app.use(cookieParser());
@@ -50,10 +69,6 @@ app.get("/api/health", (req, res) => {
     timestamp: new Date().toISOString(),
     service: "Stock Management API",
   });
-});
-
-app.get("*", (req, res) => {
-  res.status(404).json({ error: "Route not found" });
 });
 
 app.listen(PORT, () => {
