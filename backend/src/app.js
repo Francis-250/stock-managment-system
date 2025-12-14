@@ -19,21 +19,35 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 const allowedOrigins = ["http://localhost:5173", "https://stock-managment-system-1.onrender.com"];
 
+app.use((req, res, next) => {
+  console.log('🌐 Request origin:', req.headers.origin);
+  console.log('🍪 Cookies received:', req.cookies);
+  next();
+});
+
+
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
+      if (!origin) {
+        console.log('⚠️ No origin header');
+        return callback(null, true);
+      }
+      
+      console.log('🔍 Checking origin:', origin);
       
       if (allowedOrigins.includes(origin)) {
+        console.log('✅ Origin allowed:', origin);
         callback(null, true);
       } else {
-        console.log(`❌ Blocked by CORS: ${origin}`);
+        console.log('❌ Origin blocked:', origin);
         callback(new Error('Not allowed by CORS'));
       }
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Accept", "Cookie", "Set-Cookie"]
+    allowedHeaders: ["Content-Type", "Authorization", "Accept", "Cookie", "Set-Cookie"],
+    exposedHeaders: ["Set-Cookie"] 
   })
 );
 app.use(cookieParser());
