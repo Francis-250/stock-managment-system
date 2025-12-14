@@ -44,6 +44,18 @@ app.get("/", (req, res) => {
   res.send("Welcome to the API");
 });
 
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    service: "Stock Management API",
+  });
+});
+
+app.get("*", (req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
