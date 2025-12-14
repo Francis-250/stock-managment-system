@@ -84,7 +84,7 @@ export default function App() {
         />
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
-      <Toaster richColors position="top-right" />
+      <Toaster richColors position="top-right" closeButton />
     </div>
   );
 }
