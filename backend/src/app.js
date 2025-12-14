@@ -17,7 +17,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8000;
-const allowedOrigins = ["http://localhost:5173"];
+const allowedOrigins = ["http://localhost:5173", "https://stock-managment-system-1.onrender.com"];
 
 app.use(
   cors({
