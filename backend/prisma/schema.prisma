@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  firstName  String
+  lastName   String?
+  avatar     String?
+  password   String
+  isActive   Boolean  @default(true)
+  isVerified Boolean  @default(false)
+  role       Role     @default(USER)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  categories    Category[]
+  products      Product[]
+  stockIns      StockIn[]
+  stockOuts     StockOut[]
+  movements     StockMovement[]
+  otps          Otp[]
+}
+
+model Otp {
+  id        String   @id @default(cuid())
+  code      String
+  expiresAt DateTime
+  userId    String
+  type      OtpType @default(EMAIL_VERIFICATION)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Category {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  status      CategoryStatus @default(ACTIVE)
+  createdById String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  createdBy User      @relation(fields: [createdById], references: [id])
+  products  Product[]
+
+  @@unique([name, createdById])
+}
+
+model Product {
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  categoryId   String
+  sku          String
+  costPrice   Float
+  sellingPrice Float
+  status       ProductStatus @default(ACTIVE)
+  image        String?
+  createdById  String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  category       Category        @relation(fields: [categoryId], references: [id])
+  createdBy      User            @relation(fields: [createdById], references: [id])
+  stock          Stock?
+  stockIns       StockIn[]
+  stockOuts      StockOut[]
+  stockMovements StockMovement[]
+
+  @@unique([name, createdById])
+  @@unique([sku, createdById])
+}
+
+model Stock {
+  productId String   @id
+  quantity  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model StockIn {
+  id          String   @id @default(cuid())
+  productId   String
+  quantity    Int
+  createdById String
+  createdAt   DateTime @default(now())
+
+  product   Product @relation(fields: [productId], references: [id])
+  createdBy User    @relation(fields: [createdById], references: [id])
+}
+
+model StockOut {
+  id          String   @id @default(cuid())
+  productId   String
+  quantity    Int
+  createdById String
+  createdAt   DateTime @default(now())
+
+  product   Product @relation(fields: [productId], references: [id])
+  createdBy User    @relation(fields: [createdById], references: [id])
+}
+
+model StockMovement {
+  id          String   @id @default(cuid())
+  productId   String
+  quantity    Int
+  type        StockMovementType
+  createdById String
+  createdAt   DateTime @default(now())
+
+  product   Product @relation(fields: [productId], references: [id])
+  createdBy User    @relation(fields: [createdById], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum OtpType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+enum StockMovementType {
+  IN
+  OUT
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum CategoryStatus {
+  ACTIVE
+  INACTIVE
+}
