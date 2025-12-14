@@ -6,6 +6,8 @@ import Pagination from "../../components/Pagination";
 import { reportHeaders } from "../../utils/data";
 import api from "../../lib/axios";
 import ReportTable from "../../components/table/ReportTable";
+import { Download } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Report() {
   const [collapsed, setCollapsed] = useState(false);
@@ -54,6 +56,60 @@ export default function Report() {
     setCurrentPage(1);
   }, [searchTerm, itemsPerPage]);
 
+  const downloadReport = () => {
+    try {
+      const headers = [
+        "Date",
+        "Product",
+        "SKU",
+        "Type",
+        "Quantity",
+        "Unit Price",
+        "Total Amount",
+        "Reference",
+        "Created By",
+      ];
+      const csvData = filteredReports.map((report) => [
+        new Date(report.createdAt).toLocaleString(),
+        report.product?.name || "N/A",
+        report.product?.sku || "N/A",
+        report.type || "N/A",
+        report.quantity || 0,
+        report.unitPrice || 0,
+        report.quantity * report.unitPrice || 0,
+        report.reference || "N/A",
+        `${report.createdBy?.firstName || ""} ${
+          report.createdBy?.lastName || ""
+        }`.trim() || "N/A",
+      ]);
+
+      const csvContent = [
+        headers.join(","),
+        ...csvData.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+      ].join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute("href", url);
+      link.setAttribute(
+        "download",
+        `stock_movement_report_${new Date().toISOString().split("T")[0]}.csv`
+      );
+      link.style.visibility = "hidden";
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success("Report downloaded successfully!");
+    } catch (error) {
+      console.error("Error downloading report:", error);
+      toast.error("Failed to download report");
+    }
+  };
+
   return (
     <div className="flex">
       <Sidebar
@@ -71,12 +127,24 @@ export default function Report() {
         <Header setClosed={setClosed} />
 
         <div className="p-6">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-            Stock Movement Report
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            View stock movement history here.
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+                Stock Movement Report
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                View stock movement history here.
+              </p>
+            </div>
+            <button
+              onClick={downloadReport}
+              disabled={filteredReports.length === 0}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium"
+            >
+              <Download size={18} />
+              Download CSV
+            </button>
+          </div>
           <Filter
             placeholder="Search reports..."
             button="Export Report"

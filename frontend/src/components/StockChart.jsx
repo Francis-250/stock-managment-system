@@ -10,7 +10,6 @@ import {
 } from "recharts";
 
 export default function StockChart({ stats, movements }) {
-  // Transform stats data for the chart
   const chartData = [
     { name: "Products", value: stats?.products || 0, fill: "#3B82F6" },
     { name: "Categories", value: stats?.categories || 0, fill: "#10B981" },
@@ -18,7 +17,6 @@ export default function StockChart({ stats, movements }) {
     { name: "Stock Items", value: stats?.stocks || 0, fill: "#F59E0B" },
   ];
 
-  // Add stock movements if available
   if (movements && movements.length > 0) {
     movements.forEach((item) => {
       chartData.push({
