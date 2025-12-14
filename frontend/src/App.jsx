@@ -1,14 +1,14 @@
 import { Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import Home from "./pages/Home";
-import Login from "./pages/login";
+import Login from "./pages/Login";
 import ProtectedRoute from "./context/ProtectRoute";
 import Dashboard from "./pages/admin/Dashboard";
 import Category from "./pages/admin/Category";
 import Product from "./pages/admin/Product";
 import Stock from "./pages/admin/Stock";
 import StockIn from "./pages/admin/StockIn";
-import Stockout from "./pages/admin/Stockout";
+import Stockout from "./pages/admin/StockOut";
 import Report from "./pages/admin/Report";
 import Profile from "./pages/admin/Profile";
 
