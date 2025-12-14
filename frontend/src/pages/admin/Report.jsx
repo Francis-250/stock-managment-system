@@ -8,6 +8,8 @@ import api from "../../lib/axios";
 import ReportTable from "../../components/table/ReportTable";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export default function Report() {
   const [collapsed, setCollapsed] = useState(false);
@@ -110,6 +112,110 @@ export default function Report() {
     }
   };
 
+  const exportToPDF = () => {
+    try {
+      const doc = new jsPDF();
+
+      // Add title
+      doc.setFontSize(18);
+      doc.setTextColor(40);
+      doc.text("Stock Movement Report", 14, 22);
+
+      // Add date
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+      doc.text(`Total Records: ${filteredReports.length}`, 14, 36);
+
+      // Prepare table data
+      const tableData = filteredReports.map((report) => [
+        new Date(report.createdAt).toLocaleDateString(),
+        report.product?.name || "N/A",
+        report.product?.sku || "N/A",
+        report.type || "N/A",
+        report.quantity || 0,
+        `$${(report.unitPrice || 0).toFixed(2)}`,
+        `$${(report.quantity * report.unitPrice || 0).toFixed(2)}`,
+        report.reference || "N/A",
+        `${report.createdBy?.firstName || ""} ${
+          report.createdBy?.lastName || ""
+        }`.trim() || "N/A",
+      ]);
+
+      // Add table
+      autoTable(doc, {
+        startY: 42,
+        head: [
+          [
+            "Date",
+            "Product",
+            "SKU",
+            "Type",
+            "Qty",
+            "Price",
+            "Total",
+            "Ref",
+            "By",
+          ],
+        ],
+        body: tableData,
+        theme: "striped",
+        headStyles: {
+          fillColor: [59, 130, 246],
+          textColor: 255,
+          fontSize: 9,
+          fontStyle: "bold",
+        },
+        bodyStyles: {
+          fontSize: 8,
+          textColor: 50,
+        },
+        alternateRowStyles: {
+          fillColor: [245, 247, 250],
+        },
+        margin: { top: 42 },
+        styles: {
+          cellPadding: 3,
+          overflow: "linebreak",
+        },
+        columnStyles: {
+          0: { cellWidth: 22 },
+          1: { cellWidth: 35 },
+          2: { cellWidth: 20 },
+          3: { cellWidth: 18 },
+          4: { cellWidth: 12 },
+          5: { cellWidth: 18 },
+          6: { cellWidth: 18 },
+          7: { cellWidth: 20 },
+          8: { cellWidth: 25 },
+        },
+      });
+
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text(
+          `Page ${i} of ${pageCount}`,
+          doc.internal.pageSize.width / 2,
+          doc.internal.pageSize.height - 10,
+          { align: "center" }
+        );
+      }
+
+      // Save PDF
+      doc.save(
+        `stock_movement_report_${new Date().toISOString().split("T")[0]}.pdf`
+      );
+
+      toast.success("PDF report exported successfully!");
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      toast.error("Failed to export PDF report");
+    }
+  };
+
   return (
     <div className="flex">
       <Sidebar
@@ -147,9 +253,9 @@ export default function Report() {
           </div>
           <Filter
             placeholder="Search reports..."
-            button="Export Report"
-            form={false}
-            setForm={() => {}}
+            button="Export PDF"
+            form={filteredReports.length > 0}
+            setForm={exportToPDF}
             itemsPerPage={itemsPerPage}
             setItemsPerPage={setItemsPerPage}
             searchTerm={searchTerm}
